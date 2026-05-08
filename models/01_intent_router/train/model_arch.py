@@ -15,3 +15,21 @@ class IntentClassifier(nn.Module):
 
         self.dropout = nn.Dropout(dropout_rate)
         self.relu = nn.ReLU()
+
+    def forward(self, input_ids, attention_mask):
+
+        distilbert_output = self.transformer(
+            input_ids=input_ids,
+            attention_mask=attention_mask
+        )
+
+        hidden_state = distilbert_output[0]  # (batch_size, seq_len, hidden_size)
+        pooled_output = hidden_state[:, 0]    # (batch_size, hidden_size)
+
+        pooled_output = self.pre_classifier(pooled_output)
+        pooled_output = self.relu(pooled_output)
+        pooled_output = self.dropout(pooled_output)
+
+        logits = self.classifier(pooled_output)
+
+        return logits    

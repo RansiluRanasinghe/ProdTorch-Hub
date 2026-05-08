@@ -48,6 +48,7 @@ def run_training():
     INTENTS = ["KNOWLEDGE_BASE", "GENERAL_CONVERSATION", "ACTION_REQUIRED", "OFF_TOPIC", "HELP_REQUEST"]
     label_map = create_label_mapping(INTENTS)
 
+    mlflow.set_tracking_uri("sqlite:///mlflow.db")
     mlflow.set_experiment("Intent_Router_Production")
 
     with mlflow.start_run():

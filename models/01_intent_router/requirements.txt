@@ -1,0 +1,8 @@
+torch
+transformers
+mlflow
+fastapi
+uvicorn
+pydantic
+tqdm
+scikit-learn

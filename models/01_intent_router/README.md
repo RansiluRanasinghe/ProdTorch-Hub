@@ -5,8 +5,8 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-%23EE4C2C.svg?style=flat-square&logo=PyTorch&logoColor=white)](https://pytorch.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-async-005571?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![MLflow](https://img.shields.io/badge/MLflow-tracked-0194E2?style=flat-square&logo=mlflow&logoColor=white)](https://mlflow.org/)
-[![Accuracy](https://img.shields.io/badge/Accuracy-96.4%25-brightgreen?style=flat-square)]()
-[![Latency](https://img.shields.io/badge/Latency-~15ms_CPU-blue?style=flat-square)]()
+[![Model](https://img.shields.io/badge/Model-DistilBERT-blueviolet?style=flat-square)]()
+[![Docker](https://img.shields.io/badge/Docker-ready-%230db7ed?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 
 ---
 
@@ -26,18 +26,23 @@ This model classifies raw user text into one of five intents:
 
 ## 🚀 Quickstart
 
-Requires **Docker**. No other setup needed.
+Requires **Docker**. No other local setup is needed.
+
+> [!IMPORTANT]
+> You must run the build command from the **root of the ProdTorch-Hub repository**, not from inside the model folder. Docker requires access to `mlflow.db` at the project root.
 
 ```bash
-# 1. Build the container
-docker build -t intent-router:v1 ./models/01_intent_router
+# 1. Build the container (run from repository root)
+docker build -f models/01_intent_router/Dockerfile -t intent-router:v1 .
 
 # 2. Start the API
 docker run -p 8000:8000 intent-router:v1
 ```
 
-The API is live at **http://localhost:8000**
-Interactive Swagger docs at **http://localhost:8000/docs**
+| Endpoint | URL |
+|---|---|
+| API | http://localhost:8000 |
+| Swagger UI | http://localhost:8000/docs |
 
 ---
 
@@ -51,7 +56,7 @@ Classifies a raw text string into one of the five intent categories.
 
 ```json
 {
-  "text": "How do I reset my password using the mobile app?"
+  "text": "I need to reset my password using the mobile app."
 }
 ```
 
@@ -61,8 +66,9 @@ Classifies a raw text string into one of the five intent categories.
 {
   "intent": "KNOWLEDGE_BASE",
   "confidence": 0.982,
-  "model_version": "1.0.4",
-  "latency_ms": 12.5
+  "model_version": "1.0.0",
+  "latency_ms": 268.2,
+  "meta_data": null
 }
 ```
 
@@ -74,6 +80,13 @@ Classifies a raw text string into one of the five intent categories.
 | `confidence` | `float` | Model confidence score `[0.0 – 1.0]` |
 | `model_version` | `string` | Deployed model version from MLflow |
 | `latency_ms` | `float` | End-to-end inference time in milliseconds |
+| `meta_data` | `dict` | Optional metadata dictionary |
+
+---
+
+### `GET /health`
+
+Returns the health status of the API and verifies the MLflow artifact is loaded into memory. Used for **Kubernetes / Docker health checks**.
 
 ---
 
@@ -95,58 +108,61 @@ if result["intent"] == "ACTION_REQUIRED" and result["confidence"] > 0.85:
 
 ---
 
-## 🛠️ Technical Specifications
+## 🛠️ Local Development & Training
 
-| Detail | Specification |
-|---|---|
-| Framework | PyTorch 2.x |
-| Architecture | Fine-tuned `DistilBERT-base-uncased` |
-| Serving | FastAPI + Uvicorn (async) |
-| Experiment Tracking | MLflow |
-| Optimization | TorchScript compiled + INT8 quantization |
-| Input | Raw UTF-8 text string |
-| Output | Intent label + confidence score |
+To fine-tune this model on your own dataset, replacing the default training data:
 
----
-
-## 📊 Performance
-
-Trained on a curated dataset of **15,000 conversational prompts** tailored for enterprise AI environments.
-
-```
-Accuracy          96.4%
-F1-Score          0.95
-Inference Speed   ~15ms  (CPU, no GPU required)
-```
-
-To inspect full training logs, loss curves, and artifact history, start the MLflow UI:
+**1. Install dependencies**
 
 ```bash
-mlflow ui --backend-store-uri ./mlruns
+pip install -r models/01_intent_router/requirements.txt
 ```
 
-Then navigate to **http://localhost:5000** and open the `intent-router` experiment.
+**2. Inject your data**
+
+Open `models/01_intent_router/train/train.py`. Locate the `train_texts` and `train_labels` lists and replace them with your own Pandas DataFrame or CSV loading logic.
+
+**3. Run the training loop**
+
+Run from the repository root:
+
+```bash
+python models/01_intent_router/train/train.py
+```
+
+This trains the model and saves the artifact into a local `mlflow.db` and `mlartifacts/` folder at the project root.
+
+**4. Inspect training metrics**
+
+Launch the MLflow UI pointed at the SQLite tracking database:
+
+```bash
+mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001
+```
+
+Navigate to **http://localhost:5001** to view training graphs, hyperparameters, and the model registry.
 
 ---
 
 ## 📁 Directory Structure
 
 ```
-01_intent_router/
-├── train/
-│   ├── dataset.py          # Data loading & preprocessing
-│   ├── model.py            # DistilBERT fine-tuning definition
-│   ├── train.py            # Training loop with MLflow logging
-│   └── evaluate.py         # Metrics & confusion matrix
-├── serve/
-│   ├── main.py             # FastAPI application
-│   ├── schemas.py          # Pydantic request/response models
-│   └── predictor.py        # Model loading & inference
-├── Dockerfile
-├── requirements.txt
-└── README.md               # This file
+ProdTorch-Hub/
+├── mlflow.db                     # SQLite tracking DB  (generated during training)
+├── mlartifacts/                  # Model weights       (generated during training)
+└── models/
+    └── 01_intent_router/
+        ├── train/
+        │   ├── dataset.py        # PyTorch Dataset & fast tokenization
+        │   ├── model_arch.py     # DistilBERT neural network architecture
+        │   └── train.py          # Training loop & MLflow SQLite registration
+        ├── serve/
+        │   ├── app.py            # FastAPI application (loads from MLflow)
+        │   └── schemas.py        # Pydantic request/response contracts
+        ├── Dockerfile            # Containerization instructions
+        └── requirements.txt      # Python dependencies
 ```
 
 ---
 
-*Part of the [ML Arsenal](../../README.md) collection — production-grade models, ready to integrate.*
+*Part of the [ProdTorch-Hub](../../README.md) collection — production-grade PyTorch models, built for the backend.*

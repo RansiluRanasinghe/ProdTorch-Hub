@@ -27,7 +27,7 @@ class IntentDataset(Dataset):
             text = str(self.texts[idx])
             label = self.labels[idx]
 
-            encoding = self.tokenizer.encode_plus(
+            encoding = self.tokenizer._encode_plus(
                 text,
                 add_special_tokens=True,
                 max_length=self.max_length,

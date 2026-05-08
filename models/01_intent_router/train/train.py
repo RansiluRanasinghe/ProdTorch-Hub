@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from transformers import AdamW, get_linear_schedule_with_warmup
+from torch.optim import AdamW
+from transformers import get_linear_schedule_with_warmup
 import mlflow
 import mlflow.pytorch
 from tqdm import tqdm

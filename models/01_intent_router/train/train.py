@@ -70,7 +70,7 @@ def run_training():
         model = IntentClassifier(model_name=MODEL_NAME, num_labels=len(INTENTS))
         model.to(DEVICE)
 
-        optimizer = AdamW(model.parameters(), lr=LEARNING_RATE, correct_bias=False)
+        optimizer = AdamW(model.parameters(), lr=LEARNING_RATE)
         total_steps = len(train_loader) * EPOCHS
         scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
         loss_fn = nn.CrossEntropyLoss().to(DEVICE)

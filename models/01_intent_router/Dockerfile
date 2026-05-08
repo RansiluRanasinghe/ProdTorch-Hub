@@ -14,7 +14,7 @@ COPY models/01_intent_router/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY mlflow.db /app/mlflow.db
-COPY mlartifacts /app/mlartifacts
+COPY mlruns /app/mlruns
 
 COPY models/01_intent_router /app/models/01_intent_router
 

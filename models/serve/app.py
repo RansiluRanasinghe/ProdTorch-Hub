@@ -94,3 +94,7 @@ def predict_intent(request: IntentRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Inference error: {str(e)}")
+    
+@app.get("/health")
+def health_check():
+       return {"status": "healthy", "model_loaded": model is not None} 

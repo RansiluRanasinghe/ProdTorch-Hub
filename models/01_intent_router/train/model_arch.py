@@ -32,4 +32,13 @@ class IntentClassifier(nn.Module):
 
         logits = self.classifier(pooled_output)
 
-        return logits    
+        return logits
+
+    @torch.jit.export
+    def get_config(self):
+
+        return{
+            "model_type": "distilbert-classifier",
+            "hidden_dim": self.config.dim,
+            "num_labels": self.classifier.out_features
+        }    

@@ -42,3 +42,7 @@ class IntentDataset(Dataset):
                 "attention_mask" : encoding["attention_mask"].flatten(),
                 "labels" : torch.tensor(label, dtype=torch.long)
             }
+    
+def create_label_mapping(categories: List[str]) -> Dict[str, int]:
+
+    return {label: i for i, label in enumerate(sorted(set(categories)))}

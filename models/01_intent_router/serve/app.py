@@ -4,6 +4,7 @@ import mlflow.pytorch
 import torch
 import time
 import os
+import sys
 
 from schemas import IntentRequest, IntentResponse, IntentCategory
 
@@ -37,6 +38,9 @@ def load_model():
             return
         
         mlflow.set_tracking_uri(f"sqlite:///{db_path}")
+
+        train_dir = os.path.abspath(os.path.join(current_dir, "../train"))
+        sys.path.append(train_dir)
 
         print("Loading model from MLflow Registry (Version 1)...")
 

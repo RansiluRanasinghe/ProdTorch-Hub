@@ -90,4 +90,7 @@ def run_training():
             pip_requirements=["torch", "transformers", "mlflow"]
         )
 
-        print("Model training complete and logged to MLflow.")        
+        print("Model training complete and logged to MLflow.")
+
+if __name__ == "__main__":
+    run_training()                

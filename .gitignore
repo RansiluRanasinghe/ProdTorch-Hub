@@ -1,0 +1,29 @@
+# ========================
+# Python & Environments
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv/
+env/
+venv/
+
+# ========================
+# MLflow & Model Artifacts
+# ========================
+mlruns/
+*.safetensors
+*.pth
+*.pt
+*.bin
+*.onnx
+*.pkl
+
+# ========================
+# IDE & OS Files
+# ========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

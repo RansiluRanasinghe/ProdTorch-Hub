@@ -41,4 +41,29 @@ class GuardrailDataset(Dataset):
             "input_ids": encoding["input_ids"].flatten(),
             "attention_mask": encoding["attention_mask"].flatten(),
             "labels": torch.tensor(label, dtype=torch.long)
-        }    
+        }
+
+def load_security_data(model_name: str = "microsoft/deberta-v3-xsmall") -> Tuple[GuardrailDataset, GuardrailDataset]:
+
+    print("Downloading security dataset from Hugging Face...")
+
+    dataset = load_dataset("deepset/prompt-injections")
+
+    train_data = dataset["train"]
+    test_data = dataset["test"]
+
+    print(f"Loaded {len(train_data)} training samples and {len(test_data)} testing samples.")
+
+    train_dataset = GuardrailDataset(
+        texts=train_data["text"],
+        labels=train_data["label"],
+        model_name=model_name
+    )
+
+    test_dataset = GuardrailDataset(
+        texts=test_data["text"],
+        labels=test_data["label"],
+        model_name=model_name
+    )
+
+    return train_dataset, test_dataset

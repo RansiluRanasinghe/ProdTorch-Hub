@@ -13,3 +13,7 @@ app = FastAPI(
     description="High-speed security firewall for AI agents.",
     version="1.0.0"
 )
+
+model = None
+tokenizer = None
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

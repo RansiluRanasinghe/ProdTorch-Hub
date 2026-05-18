@@ -67,3 +67,25 @@ def load_security_data(model_name: str = "microsoft/deberta-v3-xsmall") -> Tuple
     )
 
     return train_dataset, test_dataset
+
+if __name__ == "__main__":
+
+    try:
+        train_ds, test_ds = load_security_data()
+
+        sample = train_ds[0]
+        original_text = train_ds.texts[0]
+        label = train_ds.labels[0]
+
+        print("Verifying dataset loading and tokenization...\n")
+
+        print(f"Original Text: {original_text}")
+        print(f"Security Label: {'UNSAFE (1)' if label == 1 else 'SAFE (0)'}")
+        print(f"Input IDs     : {sample['input_ids'][:10]}... (Shape: {sample['input_ids'].shape})")
+        print(f"Attention Mask: {sample['attention_mask'][:10]}... (Shape: {sample['attention_mask'].shape})")
+
+        print("---------------------------------------------\n")
+        print("Pipeline Success: Hugging Face data loaded and tokenized correctly!")
+
+    except Exception as e:
+        print(f"Pipeline Failure: An error occurred - {str(e)}")    

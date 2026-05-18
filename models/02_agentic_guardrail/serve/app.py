@@ -95,4 +95,8 @@ def predict_security(request: GuardrailRequest):
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error during prediction: {e}")          
+        raise HTTPException(status_code=500, detail=f"Error during prediction: {e}")
+
+@app.get("/health")
+def health_check():
+     return {"status": "healthy", "model_loaded": model is not None}             

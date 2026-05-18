@@ -55,7 +55,7 @@ def run_training():
     print("Initializing Agentic Guardrail Training Pipeline...")
 
     MODEL_NAME = "microsoft/deberta-v3-xsmall"
-    EPOCHS = 2,
+    EPOCHS = 2
     BATCH_SIZE = 16
     LEARNING_RATE = 2e-5
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")

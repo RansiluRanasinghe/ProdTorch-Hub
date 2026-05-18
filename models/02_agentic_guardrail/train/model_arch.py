@@ -24,4 +24,29 @@ class GuardrailClassifier(nn.Module):
         cls_token_state = self.dropout(cls_token_state)
         logits = self.classifier(cls_token_state)
 
-        return logits    
+        return logits
+
+if __name__ == "__main__":
+
+    try:
+       print("Downloading base model and initializing Guardrail Architecture...")
+
+       model = GuardrailClassifier()
+
+       dummy_input_ids = torch.randint(0, 1000, (1, 128))
+       dummy_attention_mask = torch.ones((2, 128), dtype=torch.long)
+
+       print("Running forward pass test...")
+
+       with torch.no_grad():
+           logits = model(dummy_input_ids, dummy_attention_mask)
+
+       print(f"Output Logits Shape: {logits.shape}")
+
+       if logits.shape == (2, 2):
+           print("Architecture Verification Success: Model built and forward pass functional.")
+       else:
+           print("Architecture Verification Failed: Unexpected output shape.")
+
+    except Exception as e:
+        print(f"Error during model architecture verification: {e}")                      

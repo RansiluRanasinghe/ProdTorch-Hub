@@ -18,3 +18,6 @@ class GuardrailDataset(Dataset):
         self.max_length = max_length
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
+
+    def __len__(self) -> int:
+        return len(self.texts)    

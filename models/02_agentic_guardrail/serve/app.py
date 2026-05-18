@@ -51,4 +51,48 @@ def load_model():
         print("Guardrail Model loaded successfully and ready to block hackers!")
 
     except Exception as e:
-        print(f"Error loading model: {e}")    
+        print(f"Error loading model: {e}")
+
+@app.post("/predict", response_model=GuardrailResponse)
+def predict_security(request: GuardrailRequest):
+
+    if model is None:
+          raise HTTPException(status_code=503, detail="Model is currently unavailable.")
+
+    start_time = time.time()
+
+    try:
+
+        encoding = tokenizer(
+            request.text,
+            add_special_tokens=True,
+            max_length=128,
+            padding='max_length',
+            truncation=True,
+            return_attention_mask=True,
+            return_tensors='pt'
+        )
+
+        input_ids = encoding["input_ids"].to(device)
+        attention_mask = encoding["attention_mask"].to(device)
+
+        with torch.no_grad():
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+
+            probabilities = torch.nn.functional.softmax(outputs, dim=1)[0]
+            confidence, predicted_class = torch.max(probabilities, dim=0)
+
+        is_safe = (predicted_class.item() == 0)
+        flag_reason = "SAFE" if is_safe else "PROMPT_INJECTION"
+
+        latency = (time.time() - start_time) * 1000
+
+        return GuardrailResponse(
+            is_safe=is_safe,
+            confidence=confidence.item(),
+            flag_reason=flag_reason,
+            latency_ms=round(latency, 2)
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during prediction: {e}")          

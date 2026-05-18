@@ -8,7 +8,7 @@ class GuardrailClassifier(nn.Module):
         super(GuardrailClassifier, self).__init__()
 
         self.config = AutoConfig.from_pretrained(model_name)
-        self.deberta = AutoModel.from_pretrained(model_name)
+        self.deberta = AutoModel.from_pretrained(model_name, torch_dtype=torch.float32)
 
         self.dropout = nn.Dropout(dropout_rate)
         self.classifier = nn.Linear(self.config.hidden_size, num_labels)

@@ -111,4 +111,7 @@ def run_training():
             pip_requirements=["torch", "transformers", "mlflow", "datasets"]
         )
         
-        print("Guardrail model training complete and registered!")    
+        print("Guardrail model training complete and registered!")
+
+if __name__ == "__main__":
+    run_training()            
